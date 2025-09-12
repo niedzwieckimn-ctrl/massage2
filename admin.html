@@ -1,0 +1,377 @@
+﻿
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Massage & SPA — Panel Admin</title>
+  <link rel="stylesheet" href="assets/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <img src="assets/logo.svg" alt="logo"/>
+        <h1>Panel admin</h1>
+      </div>
+      <div class="inline">
+        <span class="kbd">Dostęp chroniony PIN</span>
+        <button id="logoutBtn" class="btn secondary">Wyloguj</button>
+      </div>
+    </div>
+
+    <!-- Login -->
+    <div id="loginView" class="card" style="display:none;max-width:520px;margin:40px auto">
+      <h2>Wejście do panelu</h2>
+      <div class="grid two">
+        <div style="grid-column:1/-1">
+          <label>PIN</label>
+          <input id="pin" class="input" type="password" placeholder="np. 2505"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <button id="loginBtn" class="btn">Zaloguj</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App -->
+    <div id="appView" style="display:none">
+      <div class="tabbar">
+        <div class="tab active" data-tab="dashboard">Przegląd</div>
+        <div class="tab" data-tab="slots">Terminy</div>
+        <div class="tab" data-tab="services">Usługi & Cennik</div>
+        <div class="tab" data-tab="clients">Klienci</div>
+        <div class="tab" data-tab="settings">Ustawienia</div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="card tabpane" data-pane="dashboard">
+        <h2>Nadchodzące wizyty</h2>
+        <div id="upcoming" class="grid"></div>
+      </div>
+
+      <!-- Slots -->
+      <div class="card tabpane" data-pane="slots" style="display:none">
+        <h2>Terminy</h2>
+        <div class="grid two">
+          <div>
+            <label>Data</label>
+            <input id="slotDate" type="date" class="input"/>
+          </div>
+          <div>
+            <label>Godzina</label>
+            <input id="slotTime" type="time" class="input"/>
+          </div>
+          <div style="grid-column:1/-1">
+            <button id="addSlot" class="btn">Dodaj termin</button>
+          </div>
+        </div>
+        <hr class="sep"/>
+        <div id="slotsList" class="grid"></div>
+      </div>
+
+      <!-- Services -->
+      <div class="card tabpane" data-pane="services" style="display:none">
+        <h2>Usługi & Cennik</h2>
+        <div style="margin:10px 0"><button id="addService" class="btn">Dodaj usługę</button></div>
+        <table class="table">
+          <thead><tr><th>Usługa</th><th>Czas</th><th>Cena</th><th>Akcje</th></tr></thead>
+          <tbody id="servicesBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Clients -->
+      <div class="card tabpane" data-pane="clients" style="display:none">
+        <h2>Klienci</h2>
+        <div id="clientsList" class="grid"></div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card tabpane" data-pane="settings" style="display:none">
+        <h2>Ustawienia</h2>
+        <div class="grid two">
+          <div>
+            <label>Email kontaktowy</label>
+            <input id="setEmail" class="input" type="email"/>
+          </div>
+          <div>
+            <label>Telefon kontaktowy</label>
+            <input id="setTel" class="input" type="tel"/>
+          </div>
+          <div style="grid-column:1/-1">
+            <label>Treść zgody RODO</label>
+            <textarea id="setRodo" class="input" rows="3"></textarea>
+          </div>
+          <div>
+            <label>PIN do panelu</label>
+            <input id="setPIN" class="input" type="text"/>
+          </div>
+          <div style="grid-column:1/-1">
+            <button id="saveSettingsBtn" class="btn">Zapisz ustawienia</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">© Massage &amp; SPA</div>
+  </div>
+
+  <!-- Client modal -->
+  <div id="clientModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);padding:30px;overflow:auto">
+    <div class="card" style="max-width:900px;margin:40px auto">
+      <div class="inline" style="justify-content:space-between">
+        <h2 id="clientName">Klient</h2>
+        <div class="inline">
+          <button id="saveClientBtn" class="btn success">Zapisz</button>
+          <button id="closeClientBtn" class="btn danger">Zamknij</button>
+        </div>
+      </div>
+      <div class="grid two">
+        <div>
+          <label>Email</label><input id="cEmail" class="input" type="email"/>
+        </div>
+        <div>
+          <label>Telefon</label><input id="cPhone" class="input" type="tel"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Adres</label><input id="cAddress" class="input"/>
+        </div>
+        <div style="grid-column:1/-1">
+          <label>Notatka ogólna</label>
+          <textarea id="cNotes" class="input" rows="3"></textarea>
+        </div>
+        <div>
+          <label>Uczulenia</label><input id="cPrefAll" class="input"/>
+        </div>
+        <div>
+          <label>Preferencje masażu</label><input id="cPrefMassage" class="input"/>
+        </div>
+        <div>
+          <label>Stan zdrowia</label><input id="cPrefHealth" class="input"/>
+        </div>
+        <div>
+          <label>Stan psychiczny</label><input id="cPrefMental" class="input"/>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Sugestie terapeutyczne</h2>
+        <div id="clientSuggestion" class="small"></div>
+      </div>
+      <div class="card">
+        <h2>Historia zabiegów</h2>
+        <table class="table">
+          <thead><tr><th>Data</th><th>Zabieg</th><th>Notatka</th><th>Status</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/store.js"></script>
+  <script src="assets/admin.js"></script>
+  <script>
+    // tab switching
+    const tabs = document.querySelectorAll('.tabbar .tab');
+    const panes = document.querySelectorAll('.tabpane');
+    tabs.forEach(t=> t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const id = t.dataset.tab;
+      panes.forEach(p=> p.style.display = (p.dataset.pane===id)?'block':'none');
+    }));
+  </script><script>
+(function(){
+  const dateEl = document.getElementById('slotDate')   || document.getElementById('adminDate');
+  const timeEl = document.getElementById('slotTime')   || document.getElementById('adminTime');
+  const addBtn = document.getElementById('addSlot')    || document.getElementById('addSlotBtn');
+  const listEl = document.getElementById('slotsList');
+  if(!dateEl || !timeEl || !addBtn || !listEl) return;
+
+  function load(){
+    try{ return JSON.parse(localStorage.getItem('slots')||'[]'); }
+    catch(e){ return []; }
+  }
+
+  function saveMirror(arr){
+    const j = JSON.stringify(arr);
+    localStorage.setItem('slots', j);
+    localStorage.setItem('FREE_SLOTS', j);
+    localStorage.setItem('FREE_SLOTS_V2', j);
+    localStorage.setItem('freeSlotsISO', JSON.stringify(arr.map(s => `${s.date} ${s.time}`)));
+
+    // DODANE: mapa dat -> listy godzin (dla index.html)
+    const map = {};
+    arr.forEach(s => { (map[s.date] ||= []).push(s.time); });
+    localStorage.setItem('ms_slots_v61', JSON.stringify(map));
+  }
+
+  function render(){
+    const arr = load().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    listEl.innerHTML = '';
+    if(!arr.length){
+      const empty = document.createElement('div');
+      empty.className = 'row';
+      empty.textContent = 'Brak dodanych terminów';
+      listEl.appendChild(empty);
+      return;
+    }
+    arr.forEach((s,i)=>{
+      const row = document.createElement('div');
+      row.className = 'row';
+      const dt = new Date(`${s.date}T${s.time}:00`);
+      const label = isNaN(dt)
+        ? `${s.date} • ${s.time}`
+        : dt.toLocaleString('pl-PL',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}).replace('.','');
+      const span = document.createElement('span'); span.textContent = label;
+      const del = document.createElement('button');
+      del.className = 'btn danger';
+      del.textContent = 'Usuń';
+      del.addEventListener('click', ()=>{
+        const a = load(); a.splice(i,1); saveMirror(a); render();
+      });
+      row.appendChild(span); row.appendChild(del);
+      listEl.appendChild(row);
+    });
+  }
+
+  addBtn.addEventListener('click', ()=>{
+    const d = (dateEl.value||'').trim();          // YYYY-MM-DD
+    const t = (timeEl.value||'').trim().slice(0,5); // HH:MM
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d) || !/^\d{2}:\d{2}$/.test(t)){
+      alert('Podaj poprawną datę i godzinę.');
+      return;
+    }
+    const arr = load();
+    if(arr.some(s => s.date===d && s.time===t)){
+      alert('Taki termin już istnieje!');
+      return;
+    }
+    arr.push({date:d, time:t});
+    arr.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    saveMirror(arr);
+    render();
+    dateEl.value=''; timeEl.value='';
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render, { once:true });
+  } else {
+    render();
+  }
+})();
+</script>
+<script>
+// --- POMOCNICZE: normalizacja tekstu PL
+function norm(s){ return (s||"").toLowerCase().trim()
+  .replaceAll('\u00A0',' ').replace(/\s+/g,' '); }
+
+// --- mapowanie nagłówków na klucze
+const HEAD_MAP = {
+  "imię i nazwisko":"name", "imię":"name", "nazwisko":"name", "klient":"name",
+  "email":"email", "e-mail":"email",
+  "telefon":"phone", "tel":"phone",
+  "zabieg":"service", "usługa":"service", "rodzaj masażu":"service",
+  "data":"date", "termin":"date",
+  "godzina":"time", "godz":"time"
+};
+
+// znajdź tekst przycisku
+function isConfirmBtn(el){
+  return el && /potwierdź/i.test(el.textContent||"");
+}
+
+// pobierz dane z WIERZA TABELI (wg nagłówków)
+function extractFromRow(tr){
+  const table = tr.closest('table');
+  if(!table) return null;
+  const ths = Array.from(table.querySelectorAll('thead th, thead td'));
+  const cols = ths.map(th => HEAD_MAP[norm(th.textContent)] || null);
+  const tds = Array.from(tr.children);
+  const rec = {};
+  tds.forEach((td,i)=>{
+    const key = cols[i];
+    if(!key) return;
+    rec[key] = (td.querySelector('[data-value]')?.dataset.value) || td.textContent.trim();
+  });
+  // podstawowe uzupełnienia
+  if(!rec.name)   rec.name   = tr.querySelector('[data-name]')?.dataset.name   || "";
+  if(!rec.email)  rec.email  = tr.querySelector('[data-email]')?.dataset.email || "";
+  if(!rec.phone)  rec.phone  = tr.querySelector('[data-phone]')?.dataset.phone || "";
+  if(!rec.service)rec.service= tr.querySelector('[data-service]')?.dataset.service || "";
+  if(!rec.date)   rec.date   = tr.querySelector('[data-date]')?.dataset.date   || "";
+  if(!rec.time)   rec.time   = tr.querySelector('[data-time]')?.dataset.time   || "";
+  return rec;
+}
+
+// alternatywa: “karta” zamiast tabeli (szuka etykiet po tekście)
+function extractFromCard(card){
+  function pick(label){
+    const el = Array.from(card.querySelectorAll('*'))
+      .find(e => /\:/.test(e.textContent||"") && norm(e.textContent).startsWith(norm(label)));
+    if(!el) return "";
+    const txt = el.textContent.split(':').slice(1).join(':').trim();
+    return txt;
+  }
+  return {
+    name:   pick('klient')   || pick('imię') || "",
+    email:  pick('email')    || "",
+    phone:  pick('telefon')  || "",
+    service:pick('zabieg')   || pick('usługa') || "",
+    date:   pick('data')     || pick('termin') || "",
+    time:   pick('godzina')  || pick('godz')   || ""
+  };
+}
+
+// WYŚLIJ MAILA (Netlify Function + Resend)
+async function sendConfirm(rec){
+  const booking = {
+    name:   rec.name||"",
+    email:  (rec.email||"").trim(),
+    phone:  rec.phone||"",
+    address: rec.address||"",
+    serviceName: rec.service||"",
+    price:  rec.price||"",
+    date:   rec.date||"",
+    time:   rec.time||"",
+    notes:  rec.notes||""
+  };
+  if(!booking.email){
+    alert("Brak adresu e-mail klienta – nie można wysłać potwierdzenia.");
+    return;
+  }
+  const res = await fetch("/.netlify/functions/send-email",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ type:"confirm", booking })
+  });
+  if(!res.ok) throw new Error(await res.text());
+}
+
+// GLOBALNY nasłuch kliknięć
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button, a, input[type=button], input[type=submit]');
+  if(!btn || !isConfirmBtn(btn)) return;
+
+  // spróbuj z wiersza tabeli
+  let rec = null;
+  const row = btn.closest('tr');
+  if(row) rec = extractFromRow(row);
+
+  // jeśli brak — spróbuj z “karty”
+  if(!rec){
+    const card = btn.closest('.card, .reservation, .tile, .box, .panel, .item');
+    if(card) rec = extractFromCard(card);
+  }
+
+  if(!rec){ alert("Nie udało się odczytać danych rezerwacji."); return; }
+
+  try{
+    await sendConfirm(rec);
+    alert("📩 Potwierdzenie wysłane do klienta i masażystki.");
+  }catch(err){
+    console.error(err);
+    alert("❌ Błąd wysyłki potwierdzenia.");
+  }
+});
+</script>
+</body>
+</html>
