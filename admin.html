@@ -278,10 +278,9 @@ const HEAD_MAP = {
 function isConfirmBtn(el){
   return el && /potwierdź/i.test(el.textContent||"");
 }
-<script>
 async function notifyConfirmToAdminAndClient(booking) {  // booking powinien zawierać: email klienta, nazwę usługi, datę/godzinę itd.  const subject = `Potwierdzenie: ${booking.serviceName} / ${booking.date} ${booking.time}`;  const htmlForClient = `    <h2>Potwierdzenie wizyty</h2>    <p>Twoja rezerwacja została potwierdzona.</p>    <p><b>Usługa:</b> ${booking.serviceName}</p>    <p><b>Data:</b> ${booking.date} ${booking.time}</p>    <p>Do zobaczenia!</p>  `;
   try {    await fetch('/.netlify/functions/send-email', {      method: 'POST',      headers: { 'Content-Type': 'application/json' },      body: JSON.stringify({        mode: 'both', // <<< do Ciebie i do klienta        to: booking.email, // mail klienta        subject: subject,        html: htmlForClient      })    });  } catch (e) {    alert('Uwaga: nie udało się wysłać maili z potwierdzeniem (sprawdź konsolę).');    console.error('Mail (potwierdź) nie poszedł:', e);  }}
-// PRZYKŁAD użycia po zapisaniu statusu „potwierdzona”:async function handleConfirmSuccess(booking) {  // ...tu Twój kod: odśwież listę, badge „Potwierdzona” itd....  await notifyConfirmToAdminAndClient(booking);}</script>
+// PRZYKŁAD użycia po zapisaniu statusu „potwierdzona”:async function handleConfirmSuccess(booking) {  // ...tu Twój kod: odśwież listę, badge „Potwierdzona” itd....  await notifyConfirmToAdminAndClient(booking);}
 
 // pobierz dane z WIERZA TABELI (wg nagłówków)
 function extractFromRow(tr){
